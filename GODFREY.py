@@ -306,116 +306,6 @@ def initialize_master():
             messagebox.showerror("ACCESS DENIED", "INVALID MASTER KEY")
             root.destroy()
 
-root = tk.Tk()
-root.title("GODFREY KEYGEN")
-root.geometry("600x750")
-master_password_cache = []
-initialize_master()
-
-# === ASCII ART Section ===
-ascii_art = r"""
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⡴⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣶⣿⣿⣿⡅⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⣀⣀⣀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣤⣤⣤⣴⣿⣿⣿⣿⣯⣤⣶⣶⣾⣿⣶⣶⣿⣿⣿⣿⣿⡿⠿⠟⠛⠉⠉⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠉⠁⠈⣹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣶⣶⠶⠶⠦⠄⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣾⡿⠟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣟⣡⣤⣾⣿⣿⣿⣿⣿⣿⢏⠉⠛⣿⣿⣿⣿⣿⣿⣿⣿⣿⡻⢿⣿⣿⣦⡀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⣀⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠈⠻⡄⠁⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠈⠙⠻⣿⣆⠀⠀⠀⠀
-⠀⠀⠀⠀⢰⣿⣿⣿⣿⡿⠛⠉⠉⠉⠛⠛⠛⠛⠋⠁⠀⠀⠀⠁⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠈⠙⢧⠀⠀⠀
-⠀⠀⠀⠀⠀⠙⠿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠀⠀⠀⠀⠁⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠙⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⢀⣤⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⠀⢹⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⢀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠋⠁⠀⠀⠀⠀⠈⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠟⠛⢋⣩⡿⠿⠿⠟⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⡟⠁⠀⠀⠀⠀⠀⠀⠀
-⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣄⣀⡀⠀⠀⠀⠀⠀⠐⠉⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⣾⣿⣿⣿⣿⣿⣿⣿⠻⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⢿⣶⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⢰⣿⣿⣿⣿⣿⣿⣿⣿⡄⠙⢿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠠⣤⣀⠀⠀⠀⠠⣄⣀⣀⡉⢻⣿⣿⣿⣶⣄⡀⠀⠀⠀⠀⠀⠀⠀
-⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿⣦⣤⣤⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⡀⠀⠀⠀⠀
-⠀⢻⡟⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠛⠋⠉⠀⠀⢀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀
-⠀⠀⠃⠀⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀⠀⠈⠉⠻⢿⣿⣿⣿⣷⡄
-⠀⠀⠀⠀⢸⣿⣿⡟⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠛⠛⣿⣿⣿⣿⣿⣧⣀⣀⡄⠀⠀⠀⠀⠀⠀⠈⣿⡿⣿⣿⣷⠀
-⠀⠀⠀⠀⢸⣿⡿⠁⠀⠀⠀⠙⠻⠿⣟⠻⢿⣿⣿⣿⣷⣦⡀⠀⠈⠻⢿⣿⣿⣭⣉⡉⠀⠀⠀⠀⠀⠀⠀⠀⠘⠀⠸⣿⣿⡄
-⠀⠀⠀⠀⣸⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⢿⣿⣿⣦⡀⠀⠀⠀⠉⠉⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⠁
-⠀⠀⠀⠠⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⡟⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠟⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀   
-"""
-
-# --- Combined Center Container ---
-center_container = tk.Frame(root, bg=colors["dark"]["bg"])
-center_container.pack(pady=10)
-
-
-center_container.grid_columnconfigure(0, weight=1)
-center_container.grid_columnconfigure(1, weight=1)
-
-# Left side: ASCII art 
-ascii_frame = tk.Frame(center_container, bg=colors["dark"]["bg"])
-ascii_frame.grid(row=0, column=0, sticky="e", padx=(200, 0))  
-
-ascii_box = tk.Text(ascii_frame,
-                    height=28,
-                    font=(FONT_NAME, 10),
-                    bg=colors["dark"]["bg"],
-                    fg=colors["dark"]["fg"],
-                    bd=0,
-                    wrap="none")
-ascii_box.insert("1.0", ascii_art)   
-ascii_box.config(state="disabled")  #no edit  
-ascii_box.pack()
-
-# Right side: Fixed big text 
-text_frame = tk.Frame(center_container, bg=colors["dark"]["bg"])
-text_frame.grid(row=0, column=1, sticky="w", padx=(0, 0))  
-
-big_text_label = tk.Label(text_frame,
-                          text="GODFREY",  #text
-                          font=(FONT_NAME, 150),
-                          fg=colors["dark"]["fg"],
-                          bg=colors["dark"]["bg"])
-big_text_label.pack()
-
-
-
-
-
-
-
-
-
-# Labels and Entries
-tk.Label(root, text="ENTER THE WORD", font=(FONT_NAME, 10)).pack(pady=5)
-word_entry = tk.Entry(root, width=40, font=(FONT_NAME, 10), show="*")
-word_entry.pack(pady=5)
-
-tk.Label(root, text="ENTER THE SALT", font=(FONT_NAME, 10)).pack(pady=5)
-salt_entry = tk.Entry(root, width=40, font=(FONT_NAME, 10), show="*")
-salt_entry.pack(pady=5)
-
-
-# Buttons
-tk.Button(root, text="GENERATE PASSWORD", command=lambda: generate_password(word_entry, salt_entry, output_label),font=(FONT_NAME, 10)).pack(pady=10)
-
-# Output Label Frame
-output_frame = tk.Frame(root)
-output_frame.pack(anchor='w', padx=10)
-tk.Label(output_frame, text="GENERATED PASSWORD:",font=(FONT_NAME, 10)).pack(anchor='w')
-output_label = tk.Label(output_frame, text="", fg="blue", font=(FONT_NAME, 10))
-output_label.pack(anchor='w', pady=5)
-
-# First row
-btn_frame = tk.Frame(root)
-btn_frame.pack(fill='x', padx=5, pady=5)
-tk.Button(btn_frame, text="COPY", command=copy_to_clipboard, width=20, height=2, font=(FONT_NAME, 50)).pack(side='left')
-tk.Button(btn_frame, text="CLEAR", command=clear_fields, width=20, height=2, font=(FONT_NAME, 50)).pack(side='right')
-
-# Second row
-row2 = tk.Frame(root)
-row2.pack(fill='x', padx=750, pady=10)
-tk.Button(row2, text="ACCESS STORED PASSWORDS",width=25, height=2, command=access_stored_passwords, font=(FONT_NAME, 20)).pack(side='left', padx=5)
-tk.Button(row2, text="CHANGE MASTER KEY",width=25, height=2, command=change_master_password, font=(FONT_NAME, 20)).pack(side='right', padx=5)
-
 def open_about_window():
     # Create a new top-level window
     about_window = tk.Toplevel(root)
@@ -430,7 +320,6 @@ def open_about_window():
     scrollbar = tk.Scrollbar(about_content_frame, orient="vertical")
     scrollbar.pack(side="right", fill="y")
 
-    
     about_text = tk.Text(
         about_content_frame,
         font=(FONT_NAME, 16),
@@ -633,34 +522,212 @@ I didn't make it only to generate password, but also manage the passwords and st
 REMEMBER THE RECIPE, SALT IT AS PER YOUR TASTE, ENJOY THE DISH.
 
 ''')
-
-    #disabled editing
     about_text.config(state="disabled")
-    #row 3 buttons
-row3 = tk.Frame(root, bg=colors["dark"]["bg"])  
-row3.pack(fill='x', padx=700, pady=10)  
 
-# DELETE STORED PASSWORD button
-tk.Button(row3, text="DELETE STORED PASSWORD", width=21, height=2, 
-          command=delete_password, font=(FONT_NAME, 15)).pack(side='left', padx=5, pady=5)
+#  the main window
+root = tk.Tk()
+root.title("GODFREY KEYGEN")
 
-# CLEAR DATABASE button
-tk.Button(row3, text="CLEAR DATABASE", width=21, height=2, 
-          command=clear_database, font=(FONT_NAME, 15)).pack(side='left', padx=5, pady=5)
+# screen dimensions
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
 
-# ABOUT button
-tk.Button(row3, 
-          text="DOCUMENTATION", 
-          width=21,  
-          height=2, 
-          command=open_about_window,  
-          font=(FONT_NAME, 15), 
-          fg=colors["dark"]["fg"], 
-          bg=colors["dark"]["bg"], 
-          bd=1, 
-          relief="raised").pack(side='left', padx=5, pady=5)
+# Calculate window size (80% of screen size)
+window_width = int(screen_width * 0.8)
+window_height = int(screen_height * 0.8)
+
+# centre of wimdow
+x_position = (screen_width - window_width) // 2
+y_position = (screen_height - window_height) // 2
+
+#window size and position
+root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+root.minsize(int(screen_width * 0.5), int(screen_height * 0.5))  # Minimum size
 
 
+root.grid_rowconfigure(0, weight=1)
+root.grid_columnconfigure(0, weight=1)
+
+master_password_cache = []
+initialize_master()
+
+# === ASCII ART Section ===
+ascii_art = r"""
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⡴⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣶⣿⣿⣿⡅⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⣀⣀⣀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣤⣤⣤⣴⣿⣿⣿⣿⣯⣤⣶⣶⣾⣿⣶⣶⣿⣿⣿⣿⣿⡿⠿⠟⠛⠉⠉⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠉⠁⠈⣹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣶⣶⠶⠶⠦⠄⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣾⡿⠟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣟⣡⣤⣾⣿⣿⣿⣿⣿⣿⢏⠉⠛⣿⣿⣿⣿⣿⣿⣿⣿⣿⡻⢿⣿⣿⣦⡀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⣀⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠈⠻⡄⠁⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠈⠙⠻⣿⣆⠀⠀⠀⠀
+⠀⠀⠀⠀⢰⣿⣿⣿⣿⡿⠛⠉⠉⠉⠛⠛⠛⠛⠋⠁⠀⠀⠀⠁⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠈⠙⢧⠀⠀⠀
+⠀⠀⠀⠀⠀⠙⠿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠀⠀⠀⠀⠁⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠙⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢀⣤⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⠀⢹⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⢀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠋⠁⠀⠀⠀⠀⠈⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠟⠛⢋⣩⡿⠿⠿⠟⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⡟⠁⠀⠀⠀⠀⠀⠀⠀
+⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣄⣀⡀⠀⠀⠀⠀⠀⠐⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⣾⣿⣿⣿⣿⣿⣿⣿⠻⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⢿⣶⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⢰⣿⣿⣿⣿⣿⣿⣿⣿⡄⠙⢿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠠⣤⣀⠀⠀⠀⠠⣄⣀⣀⡉⢻⣿⣿⣿⣶⣄⡀⠀⠀⠀⠀⠀⠀⠀
+⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿⣦⣤⣤⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⡀⠀⠀⠀⠀
+⠀⢻⡟⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠛⠋⠉⠀⠀⢀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀
+⠀⠀⠃⠀⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀⠀⠈⠉⠻⢿⣿⣿⣿⣷⡄
+⠀⠀⠀⠀⢸⣿⣿⡟⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠛⠛⣿⣿⣿⣿⣿⣧⣀⣀⡄⠀⠀⠀⠀⠀⠀⠈⣿⡿⣿⣿⣷⠀
+⠀⠀⠀⠀⢸⣿⡿⠁⠀⠀⠀⠙⠻⠿⣟⠻⢿⣿⣿⣿⣷⣦⡀⠀⠈⠻⢿⣿⣿⣭⣉⡉⠀⠀⠀⠀⠀⠀⠀⠀⠘⠀⠸⣿⣿⡄
+⠀⠀⠀⠀⣸⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⢿⣿⣿⣦⡀⠀⠀⠀⠉⠉⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⠁
+⠀⠀⠀⠠⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀   
+"""
+
+# --- Combined Center Container ---
+center_container = tk.Frame(root, bg=colors["dark"]["bg"])
+center_container.pack(pady=10, fill='both', expand=True)
+
+center_container.grid_columnconfigure(0, weight=1)
+center_container.grid_columnconfigure(1, weight=1)
+
+# Left side: ASCII art 
+ascii_frame = tk.Frame(center_container, bg=colors["dark"]["bg"])
+ascii_frame.grid(row=0, column=0, sticky="nsew", padx=(20, 0))  
+
+ascii_box = tk.Text(ascii_frame,
+                    height=28,
+                    font=(FONT_NAME, 10),
+                    bg=colors["dark"]["bg"],
+                    fg=colors["dark"]["fg"],
+                    bd=0,
+                    wrap="none")
+ascii_box.insert("1.0", ascii_art)   
+ascii_box.config(state="disabled")  #no edit  
+ascii_box.pack(fill='both', expand=True)
+
+# Right side: Fixed big text 
+text_frame = tk.Frame(center_container, bg=colors["dark"]["bg"])
+text_frame.grid(row=0, column=1, sticky="nsew", padx=(0, 20))  
+
+big_text_label = tk.Label(text_frame,
+                          text="GODFREY",
+                          font=(FONT_NAME, int(window_height * 0.2)),  # Responsive font size
+                          fg=colors["dark"]["fg"],
+                          bg=colors["dark"]["bg"])
+big_text_label.pack(expand=True)
+
+# Main content frame
+content_frame = tk.Frame(root, bg=colors["dark"]["bg"])
+content_frame.pack(fill='both', expand=True, padx=20, pady=20)
+
+# Labels and Entries 
+tk.Label(content_frame, text="ENTER THE WORD", font=(FONT_NAME, int(window_height * 0.02)), bg=colors["dark"]["bg"], fg=colors["dark"]["fg"]).pack(pady=5)
+word_entry = tk.Entry(content_frame, width=40, font=(FONT_NAME, int(window_height * 0.02)), show="*", bg=colors["dark"]["entry_bg"], fg=colors["dark"]["entry_fg"], insertbackground=colors["dark"]["fg"])
+word_entry.pack(pady=5)
+
+tk.Label(content_frame, text="ENTER THE SALT", font=(FONT_NAME, int(window_height * 0.02)), bg=colors["dark"]["bg"], fg=colors["dark"]["fg"]).pack(pady=5)
+salt_entry = tk.Entry(content_frame, width=40, font=(FONT_NAME, int(window_height * 0.02)), show="*", bg=colors["dark"]["entry_bg"], fg=colors["dark"]["entry_fg"], insertbackground=colors["dark"]["fg"])
+salt_entry.pack(pady=5)
+
+# Generate Password button
+generate_btn = tk.Button(content_frame, 
+                        text="GENERATE PASSWORD", 
+                        command=lambda: generate_password(word_entry, salt_entry, output_label),
+                        font=(FONT_NAME, int(window_height * 0.02)),
+                        bg=colors["dark"]["button_bg"],
+                        fg=colors["dark"]["button_fg"])
+generate_btn.pack(pady=10)
+
+# Output Label Frame
+output_frame = tk.Frame(root, bg=colors["dark"]["bg"])
+output_frame.pack(fill='x', padx=20, pady=10)
+tk.Label(output_frame, 
+         text="GENERATED PASSWORD:", 
+         font=(FONT_NAME, 10), 
+         bg=colors["dark"]["bg"],
+         fg=colors["dark"]["fg"]
+).pack(side='left', padx=5)
+output_label = tk.Label(output_frame, 
+                       text="", 
+                       fg="lightblue",
+                       font=(FONT_NAME, 10),
+                       bg=colors["dark"]["bg"])
+output_label.pack(side='left', padx=5)
+
+# First row - COPY and CLEAR buttons 
+left_buttons_frame = tk.Frame(root, bg=colors["dark"]["bg"])
+left_buttons_frame.pack(side='left', padx=20, pady=10)
+
+copy_btn = tk.Button(left_buttons_frame, 
+                     text="COPY", 
+                     command=copy_to_clipboard, 
+                     width=15, 
+                     height=2,
+                     font=(FONT_NAME, 50), 
+                     bg=colors["dark"]["button_bg"], 
+                     fg=colors["dark"]["button_fg"])
+copy_btn.pack(pady=5)
+
+clear_btn = tk.Button(left_buttons_frame, 
+                      text="CLEAR", 
+                      command=clear_fields, 
+                      width=15, 
+                      height=2,
+                      font=(FONT_NAME, 50), 
+                      bg=colors["dark"]["button_bg"], 
+                      fg=colors["dark"]["button_fg"])
+clear_btn.pack(pady=5)
+
+# Center frame for middle and bottom buttons
+center_buttons_frame = tk.Frame(root, bg=colors["dark"]["bg"])
+center_buttons_frame.pack(expand=True, fill='both', padx=20, pady=10)
+
+# Second row - ACCESS and CLEAR DATABASE centered
+middle_row = tk.Frame(center_buttons_frame, bg=colors["dark"]["bg"])
+middle_row.pack(fill='x', pady=10)
+
+access_btn = tk.Button(middle_row, 
+                       text="ACCESS STORED PASSWORDS", 
+                       width=25, 
+                       height=1,
+                       command=access_stored_passwords, 
+                       font=(FONT_NAME, 20), 
+                       bg=colors["dark"]["button_bg"], 
+                       fg=colors["dark"]["button_fg"])
+access_btn.pack(side='left', expand=True, padx=5)
+
+clear_db_btn = tk.Button(middle_row, 
+                         text="CLEAR DATABASE", 
+                         width=25, 
+                         height=1,
+                         command=clear_database, 
+                         font=(FONT_NAME, 20), 
+                         bg=colors["dark"]["button_bg"], 
+                         fg=colors["dark"]["button_fg"])
+clear_db_btn.pack(side='left', expand=True, padx=5)
+
+# Third row 
+bottom_row = tk.Frame(center_buttons_frame, bg=colors["dark"]["bg"])
+bottom_row.pack(fill='x', pady=10)
+
+delete_btn = tk.Button(bottom_row, 
+                       text="DELETE STORED PASSWORD", 
+                       width=25, 
+                       height=1,
+                       command=delete_password, 
+                       font=(FONT_NAME, 20), 
+                       bg=colors["dark"]["button_bg"], 
+                       fg=colors["dark"]["button_fg"])
+delete_btn.pack(side='left', expand=True, padx=5)
+
+docs_btn = tk.Button(bottom_row, 
+                     text="DOCUMENTATION", 
+                     width=25, 
+                     height=1,
+                     command=open_about_window, 
+                     font=(FONT_NAME, 20), 
+                     bg=colors["dark"]["button_bg"], 
+                     fg=colors["dark"]["button_fg"])
+docs_btn.pack(side='left', expand=True, padx=5)
+
+# resizable
+root.resizable(True, True)
 
 apply_theme()
 root.mainloop()
