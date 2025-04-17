@@ -77,5 +77,5 @@ ii)Regular users to use their master password and authenticate.
 
 3.Even if clipping out "pyperclip" makes it function, but does not adjust with screen of android.
 
-4.Issues might occur in screen size, make sure resolution is set on 1080p for best optimisation.
+4.**RUN ONLY ON 1080p RESOLUTION AND 100% SCALING TO AVOID ABNORMAL INTERFACE.**
 
