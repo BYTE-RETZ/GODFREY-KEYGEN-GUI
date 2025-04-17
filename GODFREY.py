@@ -457,8 +457,8 @@ For those who did not understand what does 'WORD' and 'SALT' mean,
 Here is entire explaination for them.
 Consider 'WORD' as a normal word,
 which is to be processed to form a hash.
-(HASH:- Hash is a mathematical one way function, that is widely used in world of internet,
-especially for confidential stuff like passwords)
+(HASH:- Hash is a one way mathematical function, that is widely used in world of internet,
+especially for storing confidential stuff like passwords)
 'SALT' is a random string,or say a key which we add in process of forming HASH to make it
 difficult to be broken by hackers.
 The more random is 'SALT' the more entropy is generated and generated hash becomes almost crack-proof.
@@ -502,9 +502,13 @@ around extinction of universe.
 ➤ If your system gets stolen along with this tool and saved passwords, not an issue.
 The tool is completely offline.
 The password is encrypted with master key, which the User only knows.
+So there's no way attacker is going to waste his time on salvaging the encrypted unreadable gibberish.
 If the system is gone permanently, you get another system, download this tool
-and re-generate your passwords with same 'WORD' and 'SALT'
+and re-generate your passwords with same 'WORD' and 'SALT'.
 DAMNN!!! SUCH A SUPER POWER. ISN'T IT
+And no attacker could actually break it using normal systems,
+even a supercomputer would cry doing it.
+Just quantum computers are yet to take that challenge.
 
 THINGS YOU NEED TO REMEMBER:-
 
@@ -516,7 +520,7 @@ so always be cautious in the world of internet.
 ➤Remove email access from the apps or services which were not used for a long time.
 
 
-This isn't just a password too.It's a fortress built with logic, layered in encryption.
+This isn't just a password tool.It's a fortress built with logic, layered in encryption.
 I didn't make it only to generate password, but also manage the passwords and store it securely.
 
 REMEMBER THE RECIPE, SALT IT AS PER YOUR TASTE, ENJOY THE DISH.
