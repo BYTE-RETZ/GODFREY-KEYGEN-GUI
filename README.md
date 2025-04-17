@@ -45,7 +45,15 @@ Install "Quantico" font by Google Fonts by opening it and installing it from upp
 **For Linux**
 
 Create a directory and paste the font file.
-To rebuild font cache system run this command
+To rebuild font cache system run these commands
+
+```bash
+mkdir -p ~/.fonts
+```
+
+```bash
+mv /path/to/your/fontfile.ttf ~/.fonts/
+```
 
 ```bash
 fc-cache -f -v
@@ -58,7 +66,7 @@ python GODFREY.py
 
 4.A dialogue box will always appear for:
 
-i)New users to set their **master password.**
+i)New users to set their **Master Password.**
 ii)Regular users to use their master password and authenticate.
 
 5.A main window will open after that, maximize it.
@@ -69,7 +77,7 @@ ii)Regular users to use their master password and authenticate.
 
 8.Your encrypted passwords are stored in **passwords.enc** and encrypted **master key** is stored in master.key
 
-**KNOWN BUGS:**
+**KNOWN ISSUES:**
 
 1.For now the tool runs only on Windows and Linux.
 
