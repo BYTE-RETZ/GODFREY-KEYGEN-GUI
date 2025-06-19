@@ -291,6 +291,16 @@ def clear_database():
 
 def initialize_master():
     if not os.path.exists(MASTER_KEY_FILE):
+        if os.path.exists(PASSWORD_STORE_FILE):
+            messagebox.showerror(
+                                  "SECURITY WARNING",
+                                  "THE MASTERKEY FILE SEEMS TO BE MISPLACED OR DELETED.\nPLEASE RESTORE THE MASTERKEY FILE TO CONTINUE.\n"
+            )
+            root.destroy()
+            return
+
+
+
         pwd = simpledialog.askstring("SETUP", "SET A MASTER KEY:", show="*")
         if pwd:
             save_master_password(pwd)
@@ -686,6 +696,10 @@ center_buttons_frame.pack(expand=True, fill='both', padx=20, pady=10)
 middle_row = tk.Frame(center_buttons_frame, bg=colors["dark"]["bg"])
 middle_row.pack(fill='x', pady=10)
 
+middle_row.grid_columnconfigure(0, weight=1)
+middle_row.grid_columnconfigure(1, weight=1)
+middle_row.grid_columnconfigure(2, weight=1)
+
 access_btn = tk.Button(middle_row, 
                        text="ACCESS STORED PASSWORDS", 
                        width=25, 
@@ -694,7 +708,18 @@ access_btn = tk.Button(middle_row,
                        font=(FONT_NAME, 20), 
                        bg=colors["dark"]["button_bg"], 
                        fg=colors["dark"]["button_fg"])
-access_btn.pack(side='left', expand=True, padx=5)
+access_btn.grid(row=0, column=0, padx=5, sticky='ew')
+
+# CHANGE MASTER KEY button
+change_master_btn = tk.Button(middle_row, 
+                              text="CHANGE MASTER KEY", 
+                              width=25, 
+                              height=1,
+                              command=change_master_password, 
+                              font=(FONT_NAME, 20), 
+                              bg=colors["dark"]["button_bg"], 
+                              fg=colors["dark"]["button_fg"])
+change_master_btn.grid(row=0, column=1, padx=5, sticky='ew')
 
 clear_db_btn = tk.Button(middle_row, 
                          text="CLEAR DATABASE", 
@@ -704,11 +729,15 @@ clear_db_btn = tk.Button(middle_row,
                          font=(FONT_NAME, 20), 
                          bg=colors["dark"]["button_bg"], 
                          fg=colors["dark"]["button_fg"])
-clear_db_btn.pack(side='left', expand=True, padx=5)
+clear_db_btn.grid(row=0, column=2, padx=5, sticky='ew')
 
 # Third row 
 bottom_row = tk.Frame(center_buttons_frame, bg=colors["dark"]["bg"])
 bottom_row.pack(fill='x', pady=10)
+
+# Left spacer
+left_spacer = tk.Frame(bottom_row, bg=colors["dark"]["bg"])
+left_spacer.pack(side='left', expand=True, fill='x')
 
 delete_btn = tk.Button(bottom_row, 
                        text="DELETE STORED PASSWORD", 
@@ -718,7 +747,7 @@ delete_btn = tk.Button(bottom_row,
                        font=(FONT_NAME, 20), 
                        bg=colors["dark"]["button_bg"], 
                        fg=colors["dark"]["button_fg"])
-delete_btn.pack(side='left', expand=True, padx=5)
+delete_btn.pack(side='left', padx=10)
 
 docs_btn = tk.Button(bottom_row, 
                      text="DOCUMENTATION", 
@@ -728,7 +757,11 @@ docs_btn = tk.Button(bottom_row,
                      font=(FONT_NAME, 20), 
                      bg=colors["dark"]["button_bg"], 
                      fg=colors["dark"]["button_fg"])
-docs_btn.pack(side='left', expand=True, padx=5)
+docs_btn.pack(side='left', padx=10)
+
+# Right spacer
+right_spacer = tk.Frame(bottom_row, bg=colors["dark"]["bg"])
+right_spacer.pack(side='left', expand=True, fill='x')
 
 # resizable
 root.resizable(True, True)
