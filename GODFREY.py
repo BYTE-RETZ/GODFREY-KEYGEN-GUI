@@ -1,12 +1,16 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog
-import base64
-import base58
+import base91
 from argon2.low_level import hash_secret_raw, Type
 from cryptography.fernet import Fernet, InvalidToken
 import os
 import pyperclip
 import hashlib
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
 
 MASTER_KEY_FILE = "master.key"
 PASSWORD_STORE_FILE = "passwords.enc"
@@ -53,36 +57,54 @@ def apply_theme():
                 elif isinstance(child, tk.Entry):
                     child.config(bg=color["entry_bg"], fg=color["entry_fg"], insertbackground=color["fg"], font=(FONT_NAME, 10))
 
-def toggle_theme():
-    theme_mode["dark"] = not theme_mode["dark"]
-    apply_theme()
 
-def derive_key(password):
-    hashed = hashlib.sha256(password.encode()).digest()
-    return base64.urlsafe_b64encode(hashed[:32])
 
-def encrypt_data(data, key):
-    fernet = Fernet(key)
-    return fernet.encrypt(data.encode())
+def derive_aes_key(password, salt):
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100_000,
+        backend=default_backend()
+    )
+    return kdf.derive(password.encode())
 
-def decrypt_data(data, key):
-    fernet = Fernet(key)
-    return fernet.decrypt(data).decode()
+def encrypt_data(data, password):
+    salt = os.urandom(16)
+    key = derive_aes_key(password, salt)
+    iv = os.urandom(16)
+    padder = padding.PKCS7(128).padder()
+    padded_data = padder.update(data.encode()) + padder.finalize()
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+    ct = encryptor.update(padded_data) + encryptor.finalize()
+    return salt + iv + ct  
+
+def decrypt_data(encrypted, password):
+    salt = encrypted[:16]
+    iv = encrypted[16:32]
+    ct = encrypted[32:]
+    key = derive_aes_key(password, salt)
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+    decryptor = cipher.decryptor()
+    padded_data = decryptor.update(ct) + decryptor.finalize()
+    unpadder = padding.PKCS7(128).unpadder()
+    data = unpadder.update(padded_data) + unpadder.finalize()
+    return data.decode()
 
 def save_master_password(password):
-    key = derive_key(password)
+    encrypted = encrypt_data(password, password)
     with open(MASTER_KEY_FILE, "wb") as f:
-        f.write(encrypt_data(password, key))
+        f.write(encrypted)
 
 def verify_master_password(password):
     if not os.path.exists(MASTER_KEY_FILE):
         return False
-    key = derive_key(password)
     with open(MASTER_KEY_FILE, "rb") as f:
         encrypted = f.read()
     try:
-        return decrypt_data(encrypted, key) == password
-    except InvalidToken:
+        return decrypt_data(encrypted, password) == password
+    except Exception:
         return False
 
 def change_master_password():
@@ -100,39 +122,35 @@ def change_master_password():
 def encrypt_existing_passwords(old_password, new_password):
     if not os.path.exists(PASSWORD_STORE_FILE):
         return
-    old_key = derive_key(old_password)
-    new_key = derive_key(new_password)
     with open(PASSWORD_STORE_FILE, "rb") as f:
         try:
-            old_data = decrypt_data(f.read(), old_key)
+            old_data = decrypt_data(f.read(), old_password)
         except:
             old_data = ""
     with open(PASSWORD_STORE_FILE, "wb") as f:
-        f.write(encrypt_data(old_data, new_key))
+        f.write(encrypt_data(old_data, new_password))
 
 def store_password(word, salt, password, master_password):
     line = f"Word: {word} | Salt: {salt} | Password: {password}\n"
-    key = derive_key(master_password)
     if os.path.exists(PASSWORD_STORE_FILE):
         with open(PASSWORD_STORE_FILE, "rb") as f:
             try:
-                decrypted = decrypt_data(f.read(), key)
+                decrypted = decrypt_data(f.read(), master_password)
             except:
                 decrypted = ""
     else:
         decrypted = ""
     with open(PASSWORD_STORE_FILE, "wb") as f:
-        f.write(encrypt_data(decrypted + line, key))
+        f.write(encrypt_data(decrypted + line, master_password))
 
 def access_stored_passwords():
     entered = simpledialog.askstring("AUTHENTICATE", "ENTER MASTER KEY TO ACCESS PASSWORDS:", show="*")
     if verify_master_password(entered):
-        key = derive_key(entered)
         if os.path.exists(PASSWORD_STORE_FILE):
             with open(PASSWORD_STORE_FILE, "rb") as f:
                 try:
-                    content = decrypt_data(f.read(), key)
-                except InvalidToken:
+                    content = decrypt_data(f.read(), entered)
+                except Exception:
                     messagebox.showerror("ERROR", "FAILED TO DECRYPT PASSWORD FILE.")
                     return
             show_popup("STORED PASSWORDS", content)
@@ -156,12 +174,11 @@ def show_popup(title, content):
 def delete_password():
     entered = simpledialog.askstring("AUTHENTICATE", "ENTER MASTER KEY TO DELETE A PASSWORD:", show="*")
     if verify_master_password(entered):
-        key = derive_key(entered)
         if os.path.exists(PASSWORD_STORE_FILE):
             with open(PASSWORD_STORE_FILE, "rb") as f:
                 try:
-                    content = decrypt_data(f.read(), key)
-                except InvalidToken:
+                    content = decrypt_data(f.read(), entered)
+                except Exception:
                     messagebox.showerror("ERROR", "FAILED TO ENCRYPT PASSWORD FILE.")
                     return
 
@@ -195,7 +212,7 @@ def delete_password():
                 delete_index_entry.config(bg=color["bg"], fg="white",font=(FONT_NAME, 10))
                 
 
-                delete_button = tk.Button(top, text="DELETE SELECTED PASSWORD", command=lambda: delete_from_file(password_list, delete_index_entry.get(), key))
+                delete_button = tk.Button(top, text="DELETE SELECTED PASSWORD", command=lambda: delete_from_file(password_list, delete_index_entry.get(), entered))
                 delete_button.pack(pady=10)
                 theme = "dark"
                 color = colors[theme]
@@ -208,9 +225,9 @@ def delete_password():
     else:
         messagebox.showerror("ERROR", "INVALID MASTER KEY")
 
-def delete_from_file(password_list, delete_index, key):
+def delete_from_file(password_list, delete_index, password):
     try:
-        delete_index = int(delete_index) - 1  # Convert to 0-based index
+        delete_index = int(delete_index) - 1  
         if delete_index < 0 or delete_index >= len(password_list):
             raise ValueError("INVALID INDEX")
 
@@ -220,7 +237,7 @@ def delete_from_file(password_list, delete_index, key):
         # saving
         updated_content = "\n".join(password_list)
         with open(PASSWORD_STORE_FILE, "wb") as f:
-            f.write(encrypt_data(updated_content, key))
+            f.write(encrypt_data(updated_content, password))
         messagebox.showinfo("SUCCESS", "PASSWORD DELETED SUCCESSFULLY")
     except ValueError as ve:
         messagebox.showerror("Error", str(ve))
@@ -260,8 +277,8 @@ def generate_password(word_entry, salt_entry, output_label):
         )
         hex_hash = hashed.hex()
         reversed_hex = hex_hash[::-1]
-        b58_encoded = base58.b58encode(reversed_hex.encode()).decode()
-        final_password = b58_encoded[::-1]
+        b91_encoded = base91.encode(reversed_hex.encode())
+        final_password = b91_encoded[::-1]
         type_password(output_label, final_password)
         store_password(word, salt, final_password, master_password_cache[0])
     except Exception as e:
@@ -379,9 +396,8 @@ Disclaimer: This tool is solely built on purpose of education.IF YOUR INTENT IS 
 YOUR HOUSE TONIGHT.But I definitely recommend you to collaborate and contribute to become a hero for this society.
 
 This tool was made by a hacker, to protect you from hackers.
-Built By Recon Expert Through Zone alias RETZ. So don't try to claim or steal it or else the First Elden lord will make
-you piss in your pants.
-
+Built By DISHANT alias RETZ. So don't try to claim or steal it or else the First Elden lord will make
+you cower in fear.
 Just like you, even I never remembered my passwords.
 But I never trusted myself with a password manager.
 You ever trusted a cloud-based password manager, a thing that is literally CONNECTED to the internet???
@@ -410,7 +426,7 @@ AUTHENTICATION:
 
 A new user is prompted with a dialog box to set up a 'Master Key'.
 User can set the 'Master Key' as per their will
-The 'Master Key' is stored in a KEY file encrypted with AES Encryption.
+The 'Master Key' is stored in a KEY file encrypted with AES-256 CBC Encryption.
 The tool and author expects user to keep master key as unique and simple.
 And next time user returns, the tool will ask user to authenticate with the master key
 as set previously.
@@ -433,10 +449,9 @@ The flowchart towards the secure password generation is as follows:-
 ➤ Argon2-cffi algorithm hashes the word along with its salt.
 ➤ The generated "Binary Hash" is converted to "Hexadecimal Hash"
 ➤ The "Hexadecimal Hash" is then reversed.
-➤ The reversed Hex Hash is encoded with Base-58 encoding.
-➤ The Base-58 encoding is entropic as it contains numbers and both upper and lower case characters.
-➤ If there is no special character doesn't mean it is less secure, we'll see it further how.
-➤ And the reverse Base-58 string becomes our password.
+➤ The reversed Hex Hash is encoded with Base-91 encoding.
+➤ The Base-91 encoding is entropic as it contains numbers,both uppercase, lowercase and special characters.
+➤ And the reverse Base-91 string becomes our password.
 ➤ To this password generation, endless possibilities exist, just so you know sky is the limit.
 ➤ You are free to try your own mind bending techniques to generate strongest possible password.
 
@@ -565,7 +580,7 @@ root.grid_columnconfigure(0, weight=1)
 master_password_cache = []
 initialize_master()
 
-# === ASCII ART Section ===
+#ASCII ART Section 
 ascii_art = r"""
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⡴⠂⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -574,8 +589,8 @@ ascii_art = r"""
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠉⠁⠈⣹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣶⣶⠶⠶⠦⠄⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣾⡿⠟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣟⣡⣤⣾⣿⣿⣿⣿⣿⣿⢏⠉⠛⣿⣿⣿⣿⣿⣿⣿⣿⣿⡻⢿⣿⣿⣦⡀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⣀⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠈⠻⡄⠁⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠈⠙⠻⣿⣆⠀⠀⠀⠀
-⠀⠀⠀⠀⢰⣿⣿⣿⣿⡿⠛⠉⠉⠉⠛⠛⠛⠛⠋⠁⠀⠀⠀⠁⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠈⠙⢧⠀⠀⠀
+⠀⠀⠀⠀⠀⣀⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠈⠻⡄⠁⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠈⠙⢧⠀⠀⠀
+⠀⠀⠀⠀⢰⣿⣿⣿⣿⡿⠛⠉⠉⠉⠛⠛⠛⠛⠋⠁⠀⠀⠀⠁⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠀⠀⠀⠀⠁⠀⠀
 ⠀⠀⠀⠀⠀⠙⠿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠀⠀⠀⠀⠁⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠙⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⢀⣤⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⠀⢹⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀
@@ -593,14 +608,14 @@ ascii_art = r"""
 ⠀⠀⠀⠠⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀   
 """
 
-# --- Combined Center Container ---
+#Combined Center Container
 center_container = tk.Frame(root, bg=colors["dark"]["bg"])
 center_container.pack(pady=10, fill='both', expand=True)
 
 center_container.grid_columnconfigure(0, weight=1)
 center_container.grid_columnconfigure(1, weight=1)
 
-# Left side: ASCII art 
+# Left side:ASCII art 
 ascii_frame = tk.Frame(center_container, bg=colors["dark"]["bg"])
 ascii_frame.grid(row=0, column=0, sticky="nsew", padx=(20, 0))  
 
@@ -615,7 +630,7 @@ ascii_box.insert("1.0", ascii_art)
 ascii_box.config(state="disabled")  #no edit  
 ascii_box.pack(fill='both', expand=True)
 
-# Right side: Fixed big text 
+#Right side:Fixed big text 
 text_frame = tk.Frame(center_container, bg=colors["dark"]["bg"])
 text_frame.grid(row=0, column=1, sticky="nsew", padx=(0, 20))  
 
@@ -664,7 +679,7 @@ output_label = tk.Label(output_frame,
                        bg=colors["dark"]["bg"])
 output_label.pack(side='left', padx=5)
 
-# First row - COPY and CLEAR buttons 
+#First row-COPY and CLEAR buttons 
 left_buttons_frame = tk.Frame(root, bg=colors["dark"]["bg"])
 left_buttons_frame.pack(side='left', padx=20, pady=10)
 
@@ -688,11 +703,11 @@ clear_btn = tk.Button(left_buttons_frame,
                       fg=colors["dark"]["button_fg"])
 clear_btn.pack(pady=5)
 
-# Center frame for middle and bottom buttons
+#Center frame for middle and bottom buttons
 center_buttons_frame = tk.Frame(root, bg=colors["dark"]["bg"])
 center_buttons_frame.pack(expand=True, fill='both', padx=20, pady=10)
 
-# Second row - ACCESS and CLEAR DATABASE centered
+#Second row-ACCESS and CLEAR DATABASE centered
 middle_row = tk.Frame(center_buttons_frame, bg=colors["dark"]["bg"])
 middle_row.pack(fill='x', pady=10)
 
@@ -710,7 +725,7 @@ access_btn = tk.Button(middle_row,
                        fg=colors["dark"]["button_fg"])
 access_btn.grid(row=0, column=0, padx=5, sticky='ew')
 
-# CHANGE MASTER KEY button
+#CHANGE MASTER KEY button
 change_master_btn = tk.Button(middle_row, 
                               text="CHANGE MASTER KEY", 
                               width=25, 
