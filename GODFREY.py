@@ -119,7 +119,7 @@ class GodfreyWindow(QMainWindow):
         self._dragon_lines = self._load_dragon_lines()
         self.dragon_label = QLabel("\n".join(self._dragon_lines))
         self.dragon_label.setObjectName("dragonAscii")
-        self.dragon_label.setFont(QFont("Cascadia Mono", 10))
+        self.dragon_label.setFont(QFont("Cascadia Mono", 5))
         self.dragon_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         self._right_dragon_lines = self._load_right_dragon_lines()
@@ -233,13 +233,15 @@ class GodfreyWindow(QMainWindow):
         panel_layout.addLayout(form_layout)
 
         output_row = QHBoxLayout()
-        output_row.addWidget(QLabel("OUTPUT"))
+        output_title = QLabel("PASSWORD")
+        output_title.setFont(QFont(FONT_NAME, 15, QFont.Bold))
+        output_row.addWidget(output_title)
 
         self.output_label = QLineEdit()
         self.output_label.setObjectName("outputField")
         self.output_label.setReadOnly(True)
-        self.output_label.setFont(QFont(FONT_NAME, 40))
-        self.output_label.setStyleSheet("font-size: 34pt; font-weight: 700;")
+        self.output_label.setFont(QFont(FONT_NAME, 20))
+        self.output_label.setStyleSheet("font-size: 11pt; font-weight: 100;")
         self.output_label.setMinimumHeight(40)
         output_row.addWidget(self.output_label)
 
